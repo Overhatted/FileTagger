@@ -1,8 +1,49 @@
 import 'package:file_tagger/tagged_image_file.dart';
 import 'package:file_tagger/tagged_object.dart';
 import 'package:flutter/material.dart';
+import 'package:meilisearch/meilisearch.dart';
 
-void main() {
+void main() async {
+  MeiliSearchClient client = MeiliSearchClient('http://127.0.0.1:7700');
+
+  // An index is where the documents are stored.
+  MeiliSearchIndex index = client.index('movies');
+
+  const documents = [
+    {
+      'id': 1,
+      'title': 'Carol',
+      'genres': ['Romance', 'Drama']
+    },
+    {
+      'id': 2,
+      'title': 'Wonder Woman',
+      'genres': ['Action', 'Adventure']
+    },
+    {
+      'id': 3,
+      'title': 'Life of Pi',
+      'genres': ['Adventure', 'Drama']
+    },
+    {
+      'id': 4,
+      'title': 'Mad Max: Fury Road',
+      'genres': ['Adventure', 'Science Fiction']
+    },
+    {
+      'id': 5,
+      'title': 'Moana',
+      'genres': ['Fantasy', 'Action']
+    },
+    {
+      'id': 6,
+      'title': 'Philadelphia',
+      'genres': ['Drama']
+    },
+  ];
+
+  // If the index 'movies' does not exist, Meilisearch creates it when you first add the documents.
+  await index.addDocuments(documents); // => { "uid": 0 }
   runApp(const MyApp());
 }
 
@@ -53,7 +94,12 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   List<TaggedObject> _taggedObjects = List.empty(growable: true);
 
-  void _incrementCounter() {
+  void _incrementCounter() async {
+    MeiliSearchClient client = MeiliSearchClient('http://127.0.0.1:7700');
+    // An index is where the documents are stored.
+    MeiliSearchIndex index = client.index('movies');
+    // If the index 'movies' does not exist, Meilisearch creates it when you first add the documents.
+    var result = await index.search('carlo');
     setState(() {
       // This call to setState tells the Flutter framework that something has
       // changed in this State, which causes it to rerun the build method below
@@ -61,6 +107,9 @@ class _MyHomePageState extends State<MyHomePage> {
       // _counter without calling setState(), then the build method would not be
       // called again, and so nothing would appear to happen.
       _counter++;
+      if (result.hits == null) {
+        _taggedObjects.add(TaggedImageFile());
+      }
       _taggedObjects.add(TaggedImageFile());
     });
   }
