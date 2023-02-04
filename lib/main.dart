@@ -95,7 +95,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
-  final List<Library> _libraries = List.empty(growable: true);
+  List<Library> _libraries = List.empty();
   List<TaggedObject> _taggedObjects = List.empty(growable: true);
 
   _MyHomePageState() {
@@ -106,12 +106,16 @@ class _MyHomePageState extends State<MyHomePage> {
     MeiliSearchClient client = MeiliSearchClient('http://127.0.0.1:7700');
     MeiliSearchIndex index = client.index('libraries');
     Result documentsResult = await index.getDocuments();
-    for (final dynamic result in documentsResult.results) {
+    List<Library> newLibraries =
+        List.from(documentsResult.results.map((result) {
       Map<String, dynamic> castedResult = result;
       //Get library factory from type
       Library newLibrary = LibraryFiles(castedResult);
-      _libraries.add(newLibrary);
-    }
+      return newLibrary;
+    }));
+    setState(() {
+      _libraries = newLibraries;
+    });
   }
 
   void _incrementCounter() async {
