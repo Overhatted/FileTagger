@@ -92,14 +92,14 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   List<Library> _libraries = List.empty();
+  String _currentSearchQuery = "";
   List<String> _searchHits = List.empty();
 
   _MyHomePageState() {
     _loadLibraries();
-    _search("carlo");
   }
 
-  void _loadLibraries() async {
+  Future _loadLibraries() async {
     MeiliSearchClient client = MeiliSearchClient('http://127.0.0.1:7700');
     MeiliSearchIndex index = client.index('libraries');
     var documentsResult = await index.getDocuments();
@@ -110,17 +110,21 @@ class _MyHomePageState extends State<MyHomePage> {
       Library newLibrary = LibraryFiles(castedResult);
       return newLibrary;
     }));
-    setState(() {
-      _libraries = newLibraries;
-    });
+    _libraries = newLibraries;
+    await _updateSearchHits();
   }
 
-  void _search(String query) async {
+  Future _search(String query) async {
+    _currentSearchQuery = query;
+    await _updateSearchHits();
+  }
+
+  Future _updateSearchHits() async {
     MeiliSearchClient client = MeiliSearchClient('http://127.0.0.1:7700');
     // An index is where the documents are stored.
     MeiliSearchIndex index = client.index('movies');
     // If the index 'movies' does not exist, Meilisearch creates it when you first add the documents.
-    var result = await index.search(query);
+    var result = await index.search(_currentSearchQuery);
     List<Map<String, dynamic>> hits = result.hits ?? List.empty();
     setState(() {
       _searchHits = List.from(hits.map((hit) {
