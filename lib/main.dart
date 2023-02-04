@@ -1,3 +1,5 @@
+import 'package:file_tagger/library.dart';
+import 'package:file_tagger/library_files.dart';
 import 'package:file_tagger/tagged_image_file.dart';
 import 'package:file_tagger/tagged_object.dart';
 import 'package:flutter/material.dart';
@@ -92,6 +94,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  List<Library> _libraries = List.from(<Library>[LibraryFiles("folder")]);
   List<TaggedObject> _taggedObjects = List.empty(growable: true);
 
   void _incrementCounter() async {
