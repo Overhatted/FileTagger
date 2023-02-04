@@ -91,7 +91,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
   List<Library> _libraries = List.empty();
   List<String> _searchHits = List.empty();
 
