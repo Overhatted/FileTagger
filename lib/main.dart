@@ -4,6 +4,7 @@ import 'package:file_tagger/tagged_image_file.dart';
 import 'package:file_tagger/tagged_object.dart';
 import 'package:flutter/material.dart';
 import 'package:meilisearch/meilisearch.dart';
+import 'package:meilisearch/src/result.dart';
 
 void main() async {
   MeiliSearchClient client = MeiliSearchClient('http://127.0.0.1:7700');
@@ -94,8 +95,24 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
-  List<Library> _libraries = List.from(<Library>[LibraryFiles("folder")]);
+  final List<Library> _libraries = List.empty(growable: true);
   List<TaggedObject> _taggedObjects = List.empty(growable: true);
+
+  _MyHomePageState() {
+    _loadLibraries();
+  }
+
+  void _loadLibraries() async {
+    MeiliSearchClient client = MeiliSearchClient('http://127.0.0.1:7700');
+    MeiliSearchIndex index = client.index('libraries');
+    Result documentsResult = await index.getDocuments();
+    for (final dynamic result in documentsResult.results) {
+      Map<String, dynamic> castedResult = result;
+      //Get library factory from type
+      Library newLibrary = LibraryFiles(castedResult);
+      _libraries.add(newLibrary);
+    }
+  }
 
   void _incrementCounter() async {
     MeiliSearchClient client = MeiliSearchClient('http://127.0.0.1:7700');

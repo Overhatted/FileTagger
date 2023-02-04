@@ -4,13 +4,14 @@ import 'package:file_tagger/library.dart';
 import 'package:flutter/widgets.dart';
 
 class LibraryFiles implements Library {
-  String folder;
+  final String _folder;
 
-  LibraryFiles(this.folder);
+  LibraryFiles(Map<String, dynamic> parameters)
+      : _folder = parameters["folder"];
 
   @override
   Stream<String> getList() async* {
-    var dir = Directory(folder);
+    var dir = Directory(_folder);
 
     Stream<FileSystemEntity> dirList = dir.list();
     await for (final FileSystemEntity f in dirList) {
