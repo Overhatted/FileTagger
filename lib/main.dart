@@ -96,10 +96,11 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   List<Library> _libraries = List.empty();
-  List<TaggedObject> _taggedObjects = List.empty(growable: true);
+  List<String> _searchHits = List.empty();
 
   _MyHomePageState() {
     _loadLibraries();
+    _search("carlo");
   }
 
   void _loadLibraries() async {
@@ -118,23 +119,19 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void _incrementCounter() async {
+  void _search(String query) async {
     MeiliSearchClient client = MeiliSearchClient('http://127.0.0.1:7700');
     // An index is where the documents are stored.
     MeiliSearchIndex index = client.index('movies');
     // If the index 'movies' does not exist, Meilisearch creates it when you first add the documents.
-    var result = await index.search('carlo');
+    var result = await index.search(query);
+    List<Map<String, dynamic>> hits = result.hits ?? List.empty();
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-      if (result.hits == null) {
-        _taggedObjects.add(TaggedImageFile());
-      }
-      _taggedObjects.add(TaggedImageFile());
+      _searchHits = List.from(hits.map((hit) {
+        dynamic id = hit["id"];
+        int castedId = id;
+        return castedId.toString();
+      }));
     });
   }
 
@@ -156,15 +153,20 @@ class _MyHomePageState extends State<MyHomePage> {
         gridDelegate:
             const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4),
         itemBuilder: (BuildContext context, int index) {
-          if (index < _taggedObjects.length) {
-            return _taggedObjects[index].build(context);
+          if (_libraries.isNotEmpty) {
+            Library library = _libraries.first;
+            if (index < _searchHits.length) {
+              return library.build(_searchHits[index], context);
+            } else {
+              return null;
+            }
           } else {
             return null;
           }
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
+        onPressed: () => _search("Action"),
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
