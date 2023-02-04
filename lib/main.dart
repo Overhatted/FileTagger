@@ -2,7 +2,6 @@ import 'package:file_tagger/library.dart';
 import 'package:file_tagger/library_files.dart';
 import 'package:flutter/material.dart';
 import 'package:meilisearch/meilisearch.dart';
-import 'package:meilisearch/src/result.dart';
 
 void main() async {
   MeiliSearchClient client = MeiliSearchClient('http://127.0.0.1:7700');
@@ -104,7 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _loadLibraries() async {
     MeiliSearchClient client = MeiliSearchClient('http://127.0.0.1:7700');
     MeiliSearchIndex index = client.index('libraries');
-    Result documentsResult = await index.getDocuments();
+    var documentsResult = await index.getDocuments();
     List<Library> newLibraries =
         List.from(documentsResult.results.map((result) {
       Map<String, dynamic> castedResult = result;
