@@ -1,7 +1,5 @@
 import 'package:file_tagger/library.dart';
 import 'package:file_tagger/library_files.dart';
-import 'package:file_tagger/tagged_image_file.dart';
-import 'package:file_tagger/tagged_object.dart';
 import 'package:flutter/material.dart';
 import 'package:meilisearch/meilisearch.dart';
 import 'package:meilisearch/src/result.dart';
