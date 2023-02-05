@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:file_tagger/library.dart';
 import 'package:flutter/widgets.dart';
+import 'package:path/path.dart';
 
 class LibraryFiles implements Library {
   final String _folder;
@@ -17,14 +18,25 @@ class LibraryFiles implements Library {
 
   @override
   Stream<String> getList() async* {
-    var dir = Directory(_folder);
-
-    Stream<FileSystemEntity> dirList = dir.list();
-    await for (final FileSystemEntity f in dirList) {
-      String filePath = f.path;
-      List<int> filePathBytes = utf8.encode(filePath);
-      String filePathBase64 = base64Url.encode(filePathBytes);
-      yield filePathBase64.replaceAll('=', '');
+    Directory directory = Directory(_folder);
+    Stream<FileSystemEntity> directorySubEntities =
+        directory.list(recursive: true, followLinks: false);
+    await for (FileSystemEntity entity in directorySubEntities) {
+      if (entity is File) {
+        String filePath = relative(entity.path, from: _folder);
+        List<int> filePathBytes = utf8.encode(filePath);
+        String filePathBase64 = base64Url.encode(filePathBytes);
+        int numberOfEqualsSigns = 0;
+        for (int i = filePathBase64.length; i-- > 0;) {
+          if (filePathBase64[i] == '=') {
+            ++numberOfEqualsSigns;
+          } else {
+            break;
+          }
+        }
+        yield filePathBase64.substring(
+            0, filePathBase64.length - numberOfEqualsSigns);
+      }
     }
   }
 
