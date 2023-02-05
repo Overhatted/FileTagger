@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:file_tagger/library.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path/path.dart';
+import 'package:mime/mime.dart';
 
 class LibraryFiles implements Library {
   final String _folder;
@@ -46,6 +47,17 @@ class LibraryFiles implements Library {
     String paddedId = id.padRight(desiredLength, '=');
     List<int> filePathBytes = base64Url.decode(paddedId);
     String filePath = utf8.decode(filePathBytes);
-    return Image.file(File("bucegi-mountains-1641852.jpg"));
+    String fullFilePath = join(_folder, filePath);
+    String? mimeType = lookupMimeType(fullFilePath);
+    if (mimeType == null) {
+      return Image.file(File("bucegi-mountains-1641852.jpg"));
+    } else {
+      List<String> mimeTypeParts = mimeType.split('/');
+      if (mimeTypeParts[0] == 'image') {
+        return Image.file(File(fullFilePath));
+      } else {
+        return Image.file(File("bucegi-mountains-1641852.jpg"));
+      }
+    }
   }
 }
