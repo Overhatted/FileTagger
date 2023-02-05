@@ -4,46 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:meilisearch/meilisearch.dart';
 
 void main() async {
-  MeiliSearchClient client = MeiliSearchClient('http://127.0.0.1:7700');
-
-  // An index is where the documents are stored.
-  MeiliSearchIndex index = client.index('movies');
-
-  const documents = [
-    {
-      'id': 1,
-      'title': 'Carol',
-      'genres': ['Romance', 'Drama']
-    },
-    {
-      'id': 2,
-      'title': 'Wonder Woman',
-      'genres': ['Action', 'Adventure']
-    },
-    {
-      'id': 3,
-      'title': 'Life of Pi',
-      'genres': ['Adventure', 'Drama']
-    },
-    {
-      'id': 4,
-      'title': 'Mad Max: Fury Road',
-      'genres': ['Adventure', 'Science Fiction']
-    },
-    {
-      'id': 5,
-      'title': 'Moana',
-      'genres': ['Fantasy', 'Action']
-    },
-    {
-      'id': 6,
-      'title': 'Philadelphia',
-      'genres': ['Drama']
-    },
-  ];
-
-  // If the index 'movies' does not exist, Meilisearch creates it when you first add the documents.
-  await index.addDocuments(documents); // => { "uid": 0 }
   runApp(const MyApp());
 }
 
@@ -92,7 +52,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   List<Library> _libraries = List.empty();
-  String _currentSearchQuery = "";
+  String _currentSearchQuery = '';
   List<String> _searchHits = List.empty();
 
   _MyHomePageState() {
@@ -111,7 +71,24 @@ class _MyHomePageState extends State<MyHomePage> {
       return newLibrary;
     }));
     _libraries = newLibraries;
+    await _updateIndex();
     await _updateSearchHits();
+  }
+
+  Future _updateIndex() async {
+    List<Map<String, String>> documents = List.empty(growable: true);
+    for (Library library in _libraries) {
+      await for (final String id in library.getList()) {
+        documents.add({
+          'id': id,
+          //TODO: Include library type
+          'description': '',
+        });
+      }
+    }
+    MeiliSearchClient client = MeiliSearchClient('http://127.0.0.1:7700');
+    MeiliSearchIndex index = client.index('objects');
+    await index.addDocuments(documents);
   }
 
   Future _search(String query) async {
@@ -122,14 +99,14 @@ class _MyHomePageState extends State<MyHomePage> {
   Future _updateSearchHits() async {
     MeiliSearchClient client = MeiliSearchClient('http://127.0.0.1:7700');
     // An index is where the documents are stored.
-    MeiliSearchIndex index = client.index('movies');
+    MeiliSearchIndex index = client.index('objects');
     // If the index 'movies' does not exist, Meilisearch creates it when you first add the documents.
     var result = await index.search(_currentSearchQuery);
     List<Map<String, dynamic>> hits = result.hits ?? List.empty();
     setState(() {
       _searchHits = List.from(hits.map((hit) {
-        dynamic id = hit["id"];
-        int castedId = id;
+        dynamic id = hit['id'];
+        String castedId = id;
         return castedId.toString();
       }));
     });
@@ -166,7 +143,7 @@ class _MyHomePageState extends State<MyHomePage> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _search("Action"),
+        onPressed: () => _search('Action'),
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.

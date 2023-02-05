@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:file_tagger/library.dart';
 import 'package:flutter/widgets.dart';
@@ -15,7 +16,10 @@ class LibraryFiles implements Library {
 
     Stream<FileSystemEntity> dirList = dir.list();
     await for (final FileSystemEntity f in dirList) {
-      yield f.path;
+      String filePath = f.path;
+      List<int> filePathBytes = utf8.encode(filePath);
+      String filePathBase64 = base64Url.encode(filePathBytes);
+      yield filePathBase64.replaceAll('=', '');
     }
   }
 
