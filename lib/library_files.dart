@@ -7,6 +7,11 @@ import 'package:flutter/widgets.dart';
 class LibraryFiles implements Library {
   final String _folder;
 
+  /// From: https://stackoverflow.com/a/9194117/1631656
+  int _roundUpToNearestMultipleOf4(int numToRound) {
+    return ((numToRound + 4 - 1) ~/ 4) * 4;
+  }
+
   LibraryFiles(Map<String, dynamic> parameters)
       : _folder = parameters["folder"];
 
@@ -25,6 +30,10 @@ class LibraryFiles implements Library {
 
   @override
   Widget build(String id, BuildContext context) {
+    int desiredLength = _roundUpToNearestMultipleOf4(id.length);
+    String paddedId = id.padRight(desiredLength, '=');
+    List<int> filePathBytes = base64Url.decode(paddedId);
+    String filePath = utf8.decode(filePathBytes);
     return Image.file(File("bucegi-mountains-1641852.jpg"));
   }
 }
