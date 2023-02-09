@@ -54,6 +54,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Library> _libraries = List.empty();
   String _currentSearchQuery = '';
   List<String> _searchHits = List.empty();
+  int _currentPage = 0;
 
   _MyHomePageState() {
     _loadLibraries();
@@ -72,7 +73,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }));
     _libraries = newLibraries;
     await _updateIndex();
-    await _updateSearchHits();
+    await _search('');
   }
 
   Future _updateIndex() async {
@@ -93,23 +94,31 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future _search(String query) async {
     _currentSearchQuery = query;
-    await _updateSearchHits();
+    await _updateSearchHits(0);
   }
 
-  Future _updateSearchHits() async {
+  Future _updateSearchHits(int page) async {
+    _currentPage = page;
     MeiliSearchClient client = MeiliSearchClient('http://127.0.0.1:7700');
     // An index is where the documents are stored.
     MeiliSearchIndex index = client.index('objects');
     // If the index 'movies' does not exist, Meilisearch creates it when you first add the documents.
-    var result = await index.search(_currentSearchQuery);
+    var result = await index.search(_currentSearchQuery, page: page);
     List<Map<String, dynamic>> hits = result.hits ?? List.empty();
-    setState(() {
-      _searchHits = List.from(hits.map((hit) {
-        dynamic id = hit['id'];
-        String castedId = id;
-        return castedId.toString();
-      }));
-    });
+    List<String> hitsIds = List.from(hits.map((hit) {
+      dynamic id = hit['id'];
+      String castedId = id;
+      return castedId.toString();
+    }));
+    if (page == 0) {
+      setState(() {
+        _searchHits = hitsIds;
+      });
+    } else {
+      setState(() {
+        _searchHits.addAll(hitsIds);
+      });
+    }
   }
 
   @override
@@ -135,6 +144,7 @@ class _MyHomePageState extends State<MyHomePage> {
             if (index < _searchHits.length) {
               return library.build(_searchHits[index], context);
             } else {
+              _updateSearchHits(++_currentPage);
               return null;
             }
           } else {
