@@ -89,6 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     MeiliSearchClient client = MeiliSearchClient('http://127.0.0.1:7700');
     MeiliSearchIndex index = client.index('objects');
+    index.deleteAllDocuments();
     await index.addDocuments(documents);
   }
 
