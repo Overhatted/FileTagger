@@ -194,7 +194,11 @@ class _MyHomePageState extends State<MyHomePage> {
                           },
                         )
                       : GestureDetector(
-                          child: Text(_searchHits[index].description),
+                          child: Text(
+                            _searchHits[index].description.isEmpty
+                                ? "Click to add description"
+                                : _searchHits[index].description,
+                          ),
                           onTap: () {
                             setState(() {
                               _isEditing = true;
