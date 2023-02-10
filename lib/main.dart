@@ -120,7 +120,6 @@ class _MyHomePageState extends State<MyHomePage> {
       String castedId = id;
       dynamic description = hit['description'];
       String castedDescription = description;
-      castedDescription = "Temporary description";
       return _SearchHit(castedId, castedDescription);
     }));
     if (page == 0) {
