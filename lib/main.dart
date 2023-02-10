@@ -50,10 +50,17 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+class _SearchHit {
+  final String id;
+  final String description;
+
+  _SearchHit(this.id, this.description);
+}
+
 class _MyHomePageState extends State<MyHomePage> {
   List<Library> _libraries = List.empty();
   String _currentSearchQuery = '';
-  List<String> _searchHits = List.empty();
+  List<_SearchHit> _searchHits = List.empty();
   int _currentPage = 0;
 
   _MyHomePageState() {
@@ -106,10 +113,13 @@ class _MyHomePageState extends State<MyHomePage> {
     // If the index 'movies' does not exist, Meilisearch creates it when you first add the documents.
     var result = await index.search(_currentSearchQuery, page: page);
     List<Map<String, dynamic>> hits = result.hits ?? List.empty();
-    List<String> hitsIds = List.from(hits.map((hit) {
+    List<_SearchHit> hitsIds = List.from(hits.map((hit) {
       dynamic id = hit['id'];
       String castedId = id;
-      return castedId.toString();
+      dynamic description = hit['description'];
+      String castedDescription = description;
+      castedDescription = "Temporary description";
+      return _SearchHit(castedId, castedDescription);
     }));
     if (page == 0) {
       setState(() {
@@ -147,7 +157,13 @@ class _MyHomePageState extends State<MyHomePage> {
           if (_libraries.isNotEmpty) {
             Library library = _libraries.first;
             if (index < _searchHits.length) {
-              return library.build(_searchHits[index], context);
+              return Column(
+                children: [
+                  Expanded(
+                      child: library.build(_searchHits[index].id, context)),
+                  Text(_searchHits[index].description)
+                ],
+              );
             } else {
               _updateSearchHits(++_currentPage);
               return null;
