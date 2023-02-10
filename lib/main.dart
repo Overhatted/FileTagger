@@ -161,7 +161,8 @@ class _MyHomePageState extends State<MyHomePage> {
               return Column(
                 children: [
                   Expanded(
-                      child: library.build(_searchHits[index].id, context)),
+                    child: library.build(_searchHits[index].id, context),
+                  ),
                   _isEditing && _editingIndex == index
                       ? TextFormField(
                           initialValue: _searchHits[index].description,
@@ -200,7 +201,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               _editingIndex = index;
                             });
                           },
-                        )
+                        ),
                 ],
               );
             } else {
