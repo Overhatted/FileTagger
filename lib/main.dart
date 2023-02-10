@@ -62,6 +62,8 @@ class _MyHomePageState extends State<MyHomePage> {
   String _currentSearchQuery = '';
   List<_SearchHit> _searchHits = List.empty();
   int _currentPage = 0;
+  bool _isEditing = false;
+  int _editingIndex = 0;
 
   _MyHomePageState() {
     _loadLibraries();
@@ -161,7 +163,28 @@ class _MyHomePageState extends State<MyHomePage> {
                 children: [
                   Expanded(
                       child: library.build(_searchHits[index].id, context)),
-                  Text(_searchHits[index].description)
+                  _isEditing && _editingIndex == index
+                      ? TextFormField(
+                          initialValue: _searchHits[index].description,
+                          decoration:
+                              const InputDecoration(border: InputBorder.none),
+                          textAlign: TextAlign.center,
+                          onFieldSubmitted: (value) {
+                            //TODO: Save new value to database
+                            setState(() {
+                              _isEditing = false;
+                            });
+                          },
+                        )
+                      : GestureDetector(
+                          child: Text(_searchHits[index].description),
+                          onTap: () {
+                            setState(() {
+                              _isEditing = true;
+                              _editingIndex = index;
+                            });
+                          },
+                        )
                 ],
               );
             } else {
