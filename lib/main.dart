@@ -169,8 +169,25 @@ class _MyHomePageState extends State<MyHomePage> {
                           decoration:
                               const InputDecoration(border: InputBorder.none),
                           textAlign: TextAlign.center,
-                          onFieldSubmitted: (value) {
-                            //TODO: Save new value to database
+                          onFieldSubmitted: (value) async {
+                            MeiliSearchClient client =
+                                MeiliSearchClient('http://127.0.0.1:7700');
+                            MeiliSearchIndex objectsIndex =
+                                client.index('objects');
+                            String documentId = _searchHits[index].id;
+                            await objectsIndex.updateDocuments([
+                              {
+                                'id': documentId,
+                                //TODO: Include library type
+                                'description': value,
+                              }
+                            ]);
+                            //The if statement is in case the _searchHits changes while the documents are being updated:
+                            if (index < _searchHits.length &&
+                                documentId == _searchHits[index].id) {
+                              _searchHits[index] =
+                                  _SearchHit(_searchHits[index].id, value);
+                            }
                             setState(() {
                               _isEditing = false;
                             });
