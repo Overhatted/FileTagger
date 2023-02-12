@@ -2,8 +2,10 @@ import 'package:file_tagger/library.dart';
 import 'package:file_tagger/library_files.dart';
 import 'package:flutter/material.dart';
 import 'package:meilisearch/meilisearch.dart';
+import 'package:dart_vlc/dart_vlc.dart';
 
 void main() async {
+  DartVLC.initialize();
   runApp(const MyApp());
 }
 
@@ -152,6 +154,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       body: GridView.builder(
+        addAutomaticKeepAlives: false,
         gridDelegate:
             const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4),
         itemBuilder: (BuildContext context, int index) {

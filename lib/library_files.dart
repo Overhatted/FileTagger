@@ -5,6 +5,45 @@ import 'package:file_tagger/library.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path/path.dart';
 import 'package:mime/mime.dart';
+import 'package:dart_vlc/dart_vlc.dart';
+
+class _VideoPlayer extends StatefulWidget {
+  final String _fullFilePath;
+
+  const _VideoPlayer(this._fullFilePath, {Key? key}) : super(key: key);
+
+  @override
+  State<_VideoPlayer> createState() => _VideoPlayerState();
+}
+
+class _VideoPlayerState extends State<_VideoPlayer> {
+  static int _videoID = 0;
+  late Player _player;
+
+  @override
+  void initState() {
+    super.initState();
+    _player = Player(id: _videoID++);
+    _player.open(
+      Media.file(File(widget._fullFilePath)),
+      autoStart: false,
+    );
+    _player.setVolume(0);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Video(
+      player: _player,
+    );
+  }
+
+  @override
+  void dispose() {
+    _player.dispose();
+    super.dispose();
+  }
+}
 
 class LibraryFiles implements Library {
   final String _folder;
@@ -55,6 +94,8 @@ class LibraryFiles implements Library {
       List<String> mimeTypeParts = mimeType.split('/');
       if (mimeTypeParts[0] == 'image') {
         return Image.file(File(fullFilePath));
+      } else if (mimeTypeParts[0] == 'video') {
+        return _VideoPlayer(fullFilePath);
       } else {
         return Image.file(File("bucegi-mountains-1641852.jpg"));
       }
