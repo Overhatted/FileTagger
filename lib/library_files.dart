@@ -26,9 +26,10 @@ class _VideoPlayerState extends State<_VideoPlayer> {
     _player = Player(id: _videoID++);
     _player.open(
       Media.file(File(widget._fullFilePath)),
-      autoStart: false,
+      autoStart: true,
     );
     _player.setVolume(0);
+    _player.setPlaylistMode(PlaylistMode.loop);
   }
 
   @override
